@@ -12,12 +12,12 @@ library(sf)
 # Data source: https://www.ilhousedems.com/redistricting/?page_id=554
 # Code source: https://rpubs.com/huanfaChen/ggplotShapefile
 
-house_shp <- readOGR(dsn    = here('ilga_shapefiles'), 
+house_shp <-  readOGR(dsn   = here('data/ilga_shapefiles'), 
                       layer = 'PA 97-6 House Districts')
-senate_shp <- readOGR(dsn   = here('ilga_shapefiles'),
+senate_shp <- readOGR(dsn   = here('data/ilga_shapefiles'),
                       layer = 'PA 97-6 Senate Districts')
-plot(house_shp)
-plot(senate_shp)
+# plot(house_shp)
+# plot(senate_shp)
 
 summary(house_shp@data) # Need to use @, not $
 
@@ -29,9 +29,10 @@ ggplot() + geom_polygon(data = house_shp,
 # Locations geocoded by https://geocoding.geo.census.gov/geocoder/locations/addressbatch?form
 # Geocoder documentation = https://www.census.gov/programs-surveys/geography/technical-documentation/complete-technical-documentation/census-geocoder.html 
 # accessed July 18, 2020
-supporter_data <- read_csv(here('addresses_with_coords.csv'))
-supporter_data <- supporter_data %>% filter(supporter_data$coords!='0')
-supporter_data <- supporter_data %>% separate(coords, sep=',', into=c('lon','lat'))
+supporter_data <- read_csv(here('data/addresses_with_coords.csv'))
+supporter_data <- supporter_data %>% 
+  filter(supporter_data$coords!='0') %>%
+  separate(coords, sep=',', into=c('lon','lat'))
 supporter_data$lat <- parse_number(supporter_data$lat)
 supporter_data$lon <- parse_number(supporter_data$lon)
 
@@ -53,3 +54,28 @@ chicago_map
 # Clean up weird lines
 
 # Calculate which district a supporter is inside
+# Code source: https://mattherman.info/blog/point-in-poly/
+## Convert data to sf objects
+supporter_sf <- supporter_data %>%
+  st_as_sf(
+    coords = c("lon", "lat"),
+    agr = "identity",
+    crs = 2790,        # NAD83(HARN) / Illinois East
+    stringsAsFactors = FALSE,
+    remove = TRUE
+  )
+house_sf <- house_shp %>%
+  st_as_sf(
+    coords = c('long','lat'),
+    crs = 2790,
+    stringsAsFactors = FALSE,
+    remove = TRUE
+  )
+
+ggplot() + 
+  geom_sf(data = supporter_sf) +
+  geom_sf(data = house_sf,
+          color='black', fill=NA) +
+  theme_bw()
+
+supporter_house_districts <- st_join(supporter_sf, house_sf, join = st_within)
