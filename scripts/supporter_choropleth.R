@@ -55,27 +55,25 @@ chicago_map
 
 # Calculate which district a supporter is inside
 # Code source: https://mattherman.info/blog/point-in-poly/
-## Convert data to sf objects
+## Convert data to sf objects--this is getting annoying; maybe try another way
 supporter_sf <- supporter_data %>%
   st_as_sf(
     coords = c("lon", "lat"),
-    agr = "identity",
-    crs = 2790,        # NAD83(HARN) / Illinois East
+    # crs = 2028,        # NAD83(HARN) / Illinois East
     stringsAsFactors = FALSE,
     remove = TRUE
   )
 house_sf <- house_shp %>%
   st_as_sf(
     coords = c('long','lat'),
-    crs = 2790,
+    # crs = 2028,
     stringsAsFactors = FALSE,
     remove = TRUE
   )
 
 ggplot() + 
   geom_sf(data = supporter_sf) +
-  geom_sf(data = house_sf,
-          color='black', fill=NA) +
+  geom_sf(data = house_sf) +
   theme_bw()
 
 supporter_house_districts <- st_join(supporter_sf, house_sf, join = st_within)
