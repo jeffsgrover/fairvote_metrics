@@ -36,6 +36,15 @@ supporter_data <- supporter_data %>%
 supporter_data$lat <- parse_number(supporter_data$lat)
 supporter_data$lon <- parse_number(supporter_data$lon)
 
+# Supporter data summary stats
+print(paste('There are', 
+              dim(supporter_data)[1], 
+              'people in the dataset.',
+            supporter_data %>% filter(primary_state=='IL') %>% nrow(), 
+              'are in Illinois and',
+              supporter_data %>% filter(primary_state!='IL' | is.na(primary_state)) %>% nrow(),
+              'are outside of Illinois.'))
+
 state_map <- ggplot() + 
   geom_point(data = supporter_data, 
              aes(x=lon, y=lat)) +
