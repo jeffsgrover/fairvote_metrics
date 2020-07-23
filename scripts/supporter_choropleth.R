@@ -45,6 +45,7 @@ print(paste('There are',
               supporter_data %>% filter(primary_state!='IL' | is.na(primary_state)) %>% nrow(),
               'are outside of Illinois.'))
 
+# Create maps
 state_map <- ggplot() + 
   geom_point(data = supporter_data, 
              aes(x=lon, y=lat)) +
@@ -53,13 +54,14 @@ state_map <- ggplot() +
                color='black', fill=NA) +
   coord_equal() +
   theme_void()
-
 state_map
+ggsave('./images/state_map.png', state_map)
 
 chicago_map <- state_map +
   lims(x = c(-88.4, max(supporter_data$lon)),
        y = c(41.3,  max(supporter_data$lat)))
 chicago_map
+ggsave('.images/chicago_map.png', chicago_map)
 # Clean up weird lines
 
 # Calculate which district a supporter is inside
